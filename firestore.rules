@@ -4,24 +4,32 @@ service cloud.firestore {
     function signedIn() { return request.auth != null; }
     function owns(userId) { return signedIn() && request.auth.uid == userId; }
 
+    // Listings: Public read, authenticated seller write
     match /listings/{listingId} {
       allow read: if true;
       allow create: if signedIn() && request.resource.data.sellerId == request.auth.uid;
       allow update, delete: if signedIn() && resource.data.sellerId == request.auth.uid;
     }
 
+    // Users: Owner only access to profile
     match /users/{userId} {
       allow read, write: if owns(userId);
     }
 
+    // User Saved Items: Owner only access
     match /users/{userId}/saved/{listingId} {
       allow read, write: if owns(userId);
     }
 
+    // Conversations: Members only
     match /conversations/{conversationId} {
-      allow read, write: if signedIn() && request.auth.uid in resource.data.memberIds;
+      allow create: if signedIn() && request.auth.uid in request.resource.data.memberIds;
+      allow read, update, delete: if signedIn() && request.auth.uid in resource.data.memberIds;
+
+      // Messages subcollection: Members only
       match /messages/{messageId} {
-        allow read, create: if signedIn() && request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.memberIds;
+        allow read: if signedIn() && request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.memberIds;
+        allow create: if signedIn() && request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.memberIds && request.resource.data.senderId == request.auth.uid;
       }
     }
   }

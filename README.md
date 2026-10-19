@@ -16,6 +16,8 @@ A modern, student-centric marketplace mobile application built with **React Nati
 
 ---
 
+Demonstration video link - https://drive.google.com/file/d/1ZIqAYzZqHifLuWGClq-S3Z8H0ioaWvwg/view?usp=sharing
+
 ## ✨ Key Features Implemented
 
 ### 1. 🔍 Instant Search & Category Filtering
